@@ -14,34 +14,36 @@ class CalculatorViewController: UIViewController {
     @IBOutlet weak var zeroPctButton: UIButton!
     @IBOutlet weak var tenPctButton: UIButton!
     @IBOutlet weak var twentyPctButton: UIButton!
+    @IBOutlet weak var splitNumberLabel: UILabel!
     
-    var total = 0.0
+    var tip = 0.10
+    var billTotal = 0.0
+    var numberOfPeople = 2
+    var finalResult = "0.0"
+    
+    
     
     @IBAction func tipChanged(_ sender: UIButton) {
         
-        switch sender {
+        billTextField.endEditing(true)
         
-        case zeroPctButton:
-            
-            zeroPctButton.isSelected = true
-            tenPctButton.isSelected = false
-            twentyPctButton.isSelected = false
-            
-        case tenPctButton:
-            
-            tenPctButton.isSelected = true
-            zeroPctButton.isSelected = false
-            twentyPctButton.isSelected = false
-            
-        default:
-            
-            twentyPctButton.isSelected = true
-            zeroPctButton.isSelected = false
-            tenPctButton.isSelected = false
-        }
+        zeroPctButton.isSelected = false
+        tenPctButton.isSelected = false
+        twentyPctButton.isSelected = false
+        sender.isSelected = true
+        
+        let buttonTitle = sender.currentTitle!
+        let buttonTitleMinusPercentSign = String(buttonTitle.dropLast())
+        let buttonTitleAsANumber = Double(buttonTitleMinusPercentSign)!
+        tip = buttonTitleAsANumber / 100
+      
     }
     @IBAction func stepperValueChanged(_ sender: UIStepper) {
         
+        
+        splitNumberLabel.text = String(format: "%.f", sender.value)
+       
+        numberOfPeople = Int(sender.value) //splitNumberLabel.hashValue
         
         
         
@@ -49,54 +51,42 @@ class CalculatorViewController: UIViewController {
     
     @IBAction func calculatePressed(_ sender: UIButton) {
         
-        //percentualButton()
+        let bill = billTextField.text!
         
-        if zeroPctButton.isSelected == true {
+        
+        if bill != "" {
             
-            print("0.0 ")
+            billTotal = Double(bill)!
             
-        }else if tenPctButton.isSelected == true {
+            let result = billTotal * (1 + tip) / Double(numberOfPeople)
             
-            print("0.10")
+            finalResult = String(format: "%.2f", result)
             
-        } else if twentyPctButton.isSelected == true {
+            }
+        
+        self.performSegue(withIdentifier: "goToResult", sender: self)
+       
+                
+            }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "goToResult" {
             
-            print("0.20")
+            let destinationVC = segue.destination as! ResultsViewController
             
-        }else {
-            
-            print("No Tips :(")
-            
+            destinationVC.result = finalResult
+            destinationVC.tip = Int(tip * 100)
+            destinationVC.split = numberOfPeople
         }
-        
-        
-        
     }
-    func percentualButton() -> Float {
-        
-        var percent: Float
-        
-        if zeroPctButton.isSelected == true {
-            
-            percent = 0.0
-            return percent
-            
-        } else if tenPctButton.isSelected == true {
-            
-            percent = 1.1
-            return percent
-            
-        } else {
-            
-            percent = 1.2
-            return percent
-            
-        }
-        
-    }
-    //func totalValue() -> Float {
-        
-    //}
-
 }
+       
+    
+    
+        
+    
+
+        
+     
+
 
